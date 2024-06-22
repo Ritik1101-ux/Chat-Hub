@@ -115,11 +115,12 @@ export const getMessages = async (req, res) => {
 
 async function getGptResponse(question) {
 	const completion = await openai.chat.completions.create({
-		model: "sao10k/l3-euryale-70b",
+		model: "microsoft/phi-3-medium-4k-instruct", //"sao10k/l3-euryale-70b",
 		messages: [
 			{ role: "user", content: question }
 		],
 	})
+	console.log(completion.choices);
 
 	return (completion.choices[0].message.content)
 }
