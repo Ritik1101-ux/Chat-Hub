@@ -6,15 +6,15 @@ const useGoogleLogin = () => {
 	const [loadingGoogle, setLoadingGoogle] = useState(false);
 	const { setAuthUser } = useAuthContext();
 
-	const googleLogin = async (fullname,username, password) => {
-		const success = handleInputErrors(fullname,username, password);
+	const googleLogin = async (fullName,username, password) => {
+		const success = handleInputErrors(fullName,username, password);
 		if (!success) return;
 		setLoadingGoogle(true);
 		try {
 			const res = await fetch("/api/auth/google-signin", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ fullname, username, password }),
+				body: JSON.stringify({ fullName, username, password }),
 			});
 
 			const data = await res.json();

@@ -1,24 +1,42 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import useLogin from "../../hooks/useLogin";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../../utils/firebase";
+import useGoogleLogin from "../../hooks/useGoogleSignIn";
 
 const Login = () => {
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 
 	const { loading, login } = useLogin();
+	const { loadingGoogle, googleLogin } = useGoogleLogin();
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		await login(username, password);
 	};
+	const handleGoogleSignin = () => {
+		signInWithPopup(auth, provider)
+			.then(async (result) => {
+
+				const { user } = result;
+				const firstName = user.displayName;
+				const username = user.email;
+				const password = user.accessToken;
+
+
+				await googleLogin(firstName, username, password);
+
+			})
+	}
 
 	return (
 		<div className='flex flex-col items-center justify-center min-w-96 mx-auto'>
 			<div className='w-full p-6 rounded-lg shadow-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-0'>
 				<h1 className='text-3xl font-semibold text-center text-gray-300'>
 					Login
-					<span className='text-blue-500'> ChatApp</span>
+
 				</h1>
 
 				<form onSubmit={handleSubmit}>
@@ -57,6 +75,9 @@ const Login = () => {
 						</button>
 					</div>
 				</form>
+				<button className='btn btn-block btn-sm mt-2' onClick={handleGoogleSignin}>
+					{loadingGoogle ? <span className='loading loading-spinner '></span> : "Sign In With Google"}
+				</button>
 			</div>
 		</div>
 	);

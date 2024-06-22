@@ -5,11 +5,18 @@ import useConversation from "../../zustand/useConversation";
 const Message = ({ message }) => {
 	const { authUser } = useAuthContext();
 	const { selectedConversation } = useConversation();
-	const fromMe = message.senderId === authUser._id;
+
+	
+
+	const fromMe = message.senderId === authUser._id ? "currentUser" : (message.senderId === selectedConversation._id
+		? "receiverUser"
+		: "gpt");
+
 	const formattedTime = extractTime(message.createdAt);
-	const chatClassName = fromMe ? "chat-end" : "chat-start";
-	const profilePic = fromMe ? authUser.profilePic : selectedConversation?.profilePic;
-	const bubbleBgColor = fromMe ? "bg-blue-500" : "";
+	const chatClassName = fromMe == "currentUser" ? "chat-end" : "chat-start";
+	const profilePic = fromMe == "currentUser" ? authUser.profilePic : (fromMe == "receiverUser" ? selectedConversation?.profilePic
+		: 'https://static.vecteezy.com/system/resources/thumbnails/021/059/825/small_2x/chatgpt-logo-chat-gpt-icon-on-green-background-free-vector.jpg');
+	const bubbleBgColor = fromMe=="currentUser" ? "bg-blue-500" : "";
 
 	const shakeClass = message.shouldShake ? "shake" : "";
 

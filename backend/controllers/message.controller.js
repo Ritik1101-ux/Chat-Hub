@@ -1,6 +1,16 @@
 import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
 import { getReceiverSocketId, io } from "../socket/socket.js";
+import OpenAI from "openai"
+import dotenv from 'dotenv';
+import User from "../models/user.model.js";
+
+dotenv.config();
+
+const openai = new OpenAI({
+	baseURL: process.env.BASE_URL,
+	apiKey: process.env.OPEN_AI_KEY
+})
 
 export const sendMessage = async (req, res) => {
 	try {
@@ -28,18 +38,52 @@ export const sendMessage = async (req, res) => {
 			conversation.messages.push(newMessage._id);
 		}
 
-		// await conversation.save();
-		// await newMessage.save();
-
-		// this will run in parallel
 		await Promise.all([conversation.save(), newMessage.save()]);
 
-		// SOCKET IO FUNCTIONALITY WILL GO HERE
 		const receiverSocketId = getReceiverSocketId(receiverId);
 		if (receiverSocketId) {
-			// io.to(<socket_id>).emit() used to send events to specific client
 			io.to(receiverSocketId).emit("newMessage", newMessage);
 		}
+
+		const senderSocketId = getReceiverSocketId(senderId);
+		if (senderSocketId) {
+			io.to(senderSocketId).emit("newMessage", newMessage);
+		}
+
+		if (message.includes('@gpt')) {
+
+			const gptUser = await  User.findOne({ username: 'gpt' });
+			const gptId = gptUser._id;
+
+			const gptResMessage = await getGptResponse(message.replace('@gpt', '').trim());
+
+
+			const newGptMessage1 = new Message({
+				senderId: gptId,
+				receiverId: senderId,
+				message: gptResMessage
+			});
+
+			const newGptMessage2 = new Message({
+				senderId: gptId,
+				receiverId,
+				message: gptResMessage
+			});
+
+			conversation.messages.push(newGptMessage1._id);
+			await Promise.all([conversation.save(), newGptMessage1.save(), newGptMessage2.save()]);
+
+			if (senderSocketId) {
+				io.to(senderSocketId).emit("newMessage", newGptMessage1);
+			}
+
+			if (receiverSocketId) {
+				io.to(receiverSocketId).emit("newMessage", newGptMessage2);
+			}
+
+
+		}
+
 
 		res.status(201).json(newMessage);
 	} catch (error) {
@@ -67,3 +111,15 @@ export const getMessages = async (req, res) => {
 		res.status(500).json({ error: "Internal server error" });
 	}
 };
+
+
+async function getGptResponse(question) {
+	const completion = await openai.chat.completions.create({
+		model: "sao10k/l3-euryale-70b",
+		messages: [
+			{ role: "user", content: question }
+		],
+	})
+
+	return (completion.choices[0].message.content)
+}
