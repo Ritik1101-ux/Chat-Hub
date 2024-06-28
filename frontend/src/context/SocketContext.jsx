@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useContext } from "react";
+import { React,createContext, useState, useEffect, useContext } from "react";
 import { useAuthContext } from "./AuthContext";
 import io from "socket.io-client";
 
@@ -15,7 +15,8 @@ export const SocketContextProvider = ({ children }) => {
 
 	useEffect(() => {
 		if (authUser) {
-			const socket = io("https://chat-hub-backend-b6m0.onrender.com", {
+			const url=import.meta.env.VITE_BACKEND_URL;
+			const socket = io(url, {
 				query: {
 					userId: authUser._id,
 				},
