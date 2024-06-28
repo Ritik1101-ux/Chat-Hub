@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import useConversation from "../zustand/useConversation";
 import toast from "react-hot-toast";
 
@@ -10,12 +11,14 @@ const useGetMessages = () => {
 		const getMessages = async () => {
 			setLoading(true);
 			try {
-				const res = await fetch(`/api/messages/${selectedConversation._id}`);
-				const data = await res.json();
+				const url = import.meta.env.VITE_BACKEND_URL;
+				const { data } = await axios.get(`${url}/api/messages/${selectedConversation._id}`, {
+					withCredentials: true, // Include credentials (cookies) if needed
+				});
 				if (data.error) throw new Error(data.error);
 				setMessages(data);
 			} catch (error) {
-				toast.error(error.message);
+				toast.error(error?.response?.data?.error || "Internal Server Error");
 			} finally {
 				setLoading(false);
 			}
@@ -26,4 +29,5 @@ const useGetMessages = () => {
 
 	return { messages, loading };
 };
+
 export default useGetMessages;

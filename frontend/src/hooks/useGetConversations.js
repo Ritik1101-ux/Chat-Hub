@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import toast from "react-hot-toast";
 
 const useGetConversations = () => {
@@ -9,14 +10,20 @@ const useGetConversations = () => {
 		const getConversations = async () => {
 			setLoading(true);
 			try {
-				const res = await fetch("/api/users");
-				const data = await res.json();
+				const url = import.meta.env.VITE_BACKEND_URL;
+				const { data } = await axios.get(url + "/api/users", {
+					withCredentials: true, // Include credentials (cookies)
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
 				if (data.error) {
 					throw new Error(data.error);
 				}
 				setConversations(data);
 			} catch (error) {
-				toast.error(error.message);
+				console.log(error)
+				toast.error(error?.response?.data?.error || "Internal Server Error");
 			} finally {
 				setLoading(false);
 			}
@@ -27,4 +34,5 @@ const useGetConversations = () => {
 
 	return { loading, conversations };
 };
+
 export default useGetConversations;

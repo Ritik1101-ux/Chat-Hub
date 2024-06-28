@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import useConversation from "../zustand/useConversation";
 import toast from "react-hot-toast";
 
@@ -9,19 +10,19 @@ const useSendMessage = () => {
 	const sendMessage = async (message) => {
 		setLoading(true);
 		try {
-			const res = await fetch(`/api/messages/send/${selectedConversation._id}`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ message }),
-			});
-			const data = await res.json();
+			const url = import.meta.env.VITE_BACKEND_URL;
+			const { data } = await axios.post(`${url}/api/messages/send/${selectedConversation._id}`,
+				{ message },
+				{
+					headers: { "Content-Type": "application/json" },
+				}
+			);
+
 			if (data.error) throw new Error(data.error);
 
-			
+
 		} catch (error) {
-			toast.error(error.message);
+			toast.error(error?.response?.data?.error || "Internal Server Error");
 		} finally {
 			setLoading(false);
 		}
@@ -29,4 +30,5 @@ const useSendMessage = () => {
 
 	return { sendMessage, loading };
 };
+
 export default useSendMessage;

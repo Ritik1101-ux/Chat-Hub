@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import { useAuthContext } from "../context/AuthContext";
 import toast from "react-hot-toast";
 
@@ -9,11 +10,11 @@ const useLogout = () => {
 	const logout = async () => {
 		setLoading(true);
 		try {
-			const res = await fetch("/api/auth/logout", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
+			const url = import.meta.env.VITE_BACKEND_URL;
+			const { data } = await axios.post(`${url}/api/auth/logout`, {}, {
+				headers: { "Content-Type": "application/json" }
 			});
-			const data = await res.json();
+
 			if (data.error) {
 				throw new Error(data.error);
 			}
@@ -21,7 +22,7 @@ const useLogout = () => {
 			localStorage.removeItem("chat-user");
 			setAuthUser(null);
 		} catch (error) {
-			toast.error(error.message);
+			toast.error(error?.response?.data?.error || "Internal Server Error");
 		} finally {
 			setLoading(false);
 		}
@@ -29,4 +30,5 @@ const useLogout = () => {
 
 	return { loading, logout };
 };
+
 export default useLogout;

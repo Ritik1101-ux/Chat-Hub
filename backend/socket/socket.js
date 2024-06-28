@@ -2,24 +2,27 @@ import { Server } from "socket.io";
 import http from "http";
 import express from "express";
 import cors from 'cors';
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 
-
 app.use(cors({
-	origin: '*', // Frontend URL
+	origin: process.env.FRONT_END_URL, 
 	methods: ['GET', 'POST'],
-	credentials: true, // If you are using cookies for authentication
+	credentials: true,
 }));
 
-
 const server = http.createServer(app);
+
+// Socket.IO server setup
 const io = new Server(server, {
 	cors: {
-		origin: "*",
+		origin: process.env.FRONT_END_URL, 
 		methods: ["GET", "POST"],
 	},
 });
+
 export const getReceiverSocketId = (receiverId) => {
 	return userSocketMap[receiverId];
 };

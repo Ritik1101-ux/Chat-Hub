@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuthContext } from "../context/AuthContext";
 
@@ -11,13 +12,15 @@ const useLogin = () => {
 		if (!success) return;
 		setLoading(true);
 		try {
-			const res = await fetch("/api/auth/login", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ username, password }),
+			const url = import.meta.env.VITE_BACKEND_URL;
+			const { data } = await axios.post(`${url}/api/auth/login`, {
+				username,
+				password
+			}, {
+				headers: { "Content-Type": "application/json" }
 			});
+			console.log(data);
 
-			const data = await res.json();
 			if (data.error) {
 				throw new Error(data.error);
 			}
@@ -25,7 +28,7 @@ const useLogin = () => {
 			localStorage.setItem("chat-user", JSON.stringify(data));
 			setAuthUser(data);
 		} catch (error) {
-			toast.error(error.message);
+			toast.error(error?.response?.data?.error || "Internal Server Error");
 		} finally {
 			setLoading(false);
 		}
@@ -33,6 +36,7 @@ const useLogin = () => {
 
 	return { loading, login };
 };
+
 export default useLogin;
 
 function handleInputErrors(username, password) {
