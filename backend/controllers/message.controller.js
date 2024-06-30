@@ -74,11 +74,11 @@ export const sendMessage = async (req, res) => {
 			await Promise.all([conversation.save(), newGptMessage1.save(), newGptMessage2.save()]);
 
 			if (senderSocketId) {
-				io.to(senderSocketId).emit("newMessage", newGptMessage1);
+				io.to(senderSocketId).emit("newMessage", newGptMessage2);
 			}
 
 			if (receiverSocketId) {
-				io.to(receiverSocketId).emit("newMessage", newGptMessage2);
+				io.to(receiverSocketId).emit("newMessage", newGptMessage1);
 			}
 
 

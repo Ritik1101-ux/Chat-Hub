@@ -19,7 +19,7 @@ const useLogin = () => {
 			}, {
 				headers: { "Content-Type": "application/json" }
 			});
-			console.log(data);
+	
 
 			if (data.error) {
 				throw new Error(data.error);
