@@ -10,11 +10,12 @@ const useSendMessage = () => {
 	const sendMessage = async (message) => {
 		setLoading(true);
 		try {
+			const token=localStorage.getItem('access-token')
 			const url = import.meta.env.VITE_BACKEND_URL;
 			const { data } = await axios.post(`${url}/api/messages/send/${selectedConversation._id}`,
 				{ message },
 				{
-					headers: { "Content-Type": "application/json" },
+					headers: { "Content-Type": "application/json" ,		'authorization':`Bearer ${token}`},
 				}
 			);
 

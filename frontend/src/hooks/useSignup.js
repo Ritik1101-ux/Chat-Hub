@@ -22,9 +22,11 @@ const useSignup = () => {
 				gender
 			}, {
 				headers: { "Content-Type": "application/json" }
-			});
+			});	
+
 
 			localStorage.setItem("chat-user", JSON.stringify(data));
+			localStorage.setItem("access-token",data.token)
 			setAuthUser(data);
 		} catch (error) {
 			toast.error(error?.response?.data?.error || "Internal Server Error");
