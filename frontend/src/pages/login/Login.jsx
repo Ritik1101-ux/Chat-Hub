@@ -4,6 +4,7 @@ import useLogin from "../../hooks/useLogin";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../../utils/firebase";
 import useGoogleLogin from "../../hooks/useGoogleSignIn";
+import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
 	const [username, setUsername] = useState("");
@@ -42,7 +43,7 @@ const Login = () => {
 				<form onSubmit={handleSubmit}>
 					<div>
 						<label className='label p-2'>
-							<span className='text-base label-text'>Username</span>
+							<span className='text-base label-text text-white'>Username</span>
 						</label>
 						<input
 							type='text'
@@ -55,7 +56,7 @@ const Login = () => {
 
 					<div>
 						<label className='label'>
-							<span className='text-base label-text'>Password</span>
+							<span className='text-base label-text text-white'>Password</span>
 						</label>
 						<input
 							type='password'
@@ -65,7 +66,7 @@ const Login = () => {
 							onChange={(e) => setPassword(e.target.value)}
 						/>
 					</div>
-					<Link to='/signup' className='text-sm  hover:underline hover:text-blue-600 mt-2 inline-block'>
+					<Link to='/signup' className='text-sm  hover:underline hover:text-blue-600 mt-2 inline-block text-white'>
 						{"Don't"} have an account?
 					</Link>
 
@@ -76,7 +77,7 @@ const Login = () => {
 					</div>
 				</form>
 				<button className='btn btn-block btn-sm mt-2' onClick={handleGoogleSignin}>
-					{loadingGoogle ? <span className='loading loading-spinner '></span> : "Sign In With Google"}
+					{loadingGoogle ? <span className='loading loading-spinner '></span> : <><FcGoogle size={25} /> {"Sign In With Google"}</>}
 				</button>
 			</div>
 		</div>

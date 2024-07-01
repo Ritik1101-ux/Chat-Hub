@@ -2,6 +2,10 @@ import { Link } from "react-router-dom";
 import GenderCheckbox from "./GenderCheckbox";
 import { useState } from "react";
 import useSignup from "../../hooks/useSignup";
+import { FcGoogle } from "react-icons/fc";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../../utils/firebase";
+import useGoogleLogin from "../../hooks/useGoogleSignIn";
 
 const SignUp = () => {
 	const [inputs, setInputs] = useState({
@@ -13,6 +17,7 @@ const SignUp = () => {
 	});
 
 	const { loading, signup } = useSignup();
+	const { loadingGoogle, googleLogin } = useGoogleLogin();
 
 	const handleCheckboxChange = (gender) => {
 		setInputs({ ...inputs, gender });
@@ -22,6 +27,21 @@ const SignUp = () => {
 		e.preventDefault();
 		await signup(inputs);
 	};
+
+	const handleGoogleSignin = () => {
+		signInWithPopup(auth, provider)
+			.then(async (result) => {
+
+				const { user } = result;
+				const firstName = user.displayName;
+				const username = user.email;
+				const password = user.accessToken;
+
+
+				await googleLogin(firstName, username, password);
+
+			})
+	}
 
 	return (
 		<div className='flex flex-col items-center justify-center min-w-96 mx-auto'>
@@ -33,7 +53,7 @@ const SignUp = () => {
 				<form onSubmit={handleSubmit}>
 					<div>
 						<label className='label p-2'>
-							<span className='text-base label-text'>Full Name</span>
+							<span className='text-base label-text text-white'>Full Name</span>
 						</label>
 						<input
 							type='text'
@@ -46,7 +66,7 @@ const SignUp = () => {
 
 					<div>
 						<label className='label p-2 '>
-							<span className='text-base label-text'>Username</span>
+							<span className='text-base label-text text-white'>Username</span>
 						</label>
 						<input
 							type='text'
@@ -59,7 +79,7 @@ const SignUp = () => {
 
 					<div>
 						<label className='label'>
-							<span className='text-base label-text'>Password</span>
+							<span className='text-base label-text text-white'>Password</span>
 						</label>
 						<input
 							type='password'
@@ -72,7 +92,7 @@ const SignUp = () => {
 
 					<div>
 						<label className='label'>
-							<span className='text-base label-text'>Confirm Password</span>
+							<span className='text-base label-text text-white'>Confirm Password</span>
 						</label>
 						<input
 							type='password'
@@ -87,7 +107,7 @@ const SignUp = () => {
 
 					<Link
 						to={"/login"}
-						className='text-sm hover:underline hover:text-blue-600 mt-2 inline-block'
+						className='text-sm hover:underline hover:text-blue-600 mt-2 inline-block text-white'
 						href='#'
 					>
 						Already have an account?
@@ -99,6 +119,9 @@ const SignUp = () => {
 						</button>
 					</div>
 				</form>
+				<button className='btn btn-block btn-sm mt-2' onClick={handleGoogleSignin}>
+					{loadingGoogle ? <span className='loading loading-spinner '></span> : <><FcGoogle size={25} /> {"Sign In With Google"}</>}
+				</button>
 			</div>
 		</div>
 	);
